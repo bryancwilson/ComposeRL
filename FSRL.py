@@ -4,38 +4,8 @@ import matplotlib.pyplot as plt
 from music21.clef import BassClef, TrebleClef
 from music21 import *
 
-from MusicAIFunctions import MelodyRew
+from RewardFunction import MelodyRew
 
-
-'''
-NOTES, CONCLUSIONS, AND DECISIONS
-I have not been able to find a way to render a grand staff so I might not be able to see the agent writing the top part in relation to the bottom part. Rather both pieces of music will be visually separate however will still be connected within the environment.
-    This might actually be helpful as it ensures that both remain respective and independent. I will try and look later to combine both the two in order to hear and see a finished product.
-
-Want to find a way where I can edit not only the tonality and time signature of the piece but the baseline as well without having to constantly change the environment. Find a way to not only input what baseline notes to put, but also find a way to select how many baseline notes
-    I want to input which will allow me to inadvertently select how many measures I want. Maybe do this in the future.
-
-Try and look into a way to render the initial baseline and the composed top line by the agent sepearately. This will not force us to render which will result in greater efficiency and speed.
-
-May have to try and develop some rules yourself about voice leading that you believe will result to better reharmonization. Expand this project to more than voice leading and rather to reharmonization.
-
-Reduce the reward when using the same interval more than once
-
-GOAL - REHARMONIZATION
-
-V 1 - the artificiail intellgience algorithms finds the optimal composition using part writing
-    V 1.1 - the artificial intelligence algorithm prints one note at a time
-    V 1.2 REAL - The artificial intelligence algorithm print three notes at the same time
-
-V 2 - the artificial intelligence algorithm suggests a harmonic structure over a given bassline
-    " To create an enjoyable reharmonization of a melody, tension and resolution, along with part writing techniques must be considered. Considering tension and resolution does not imply the consideration of chordal tonality, but rather opens up the possibilities for fresher
-    and interesting reharmonization choices." 
-
-V 3 - the artificial intelligence algorithm suggest a harmonic structure under a given melody line
-    Does this RL Problem follow the Markov Property - because the tension and resolution of harmonic notes should not be dependent on the context of the composition, I believe it follows the Markov Property
-
-
-'''
 
 class MusicComposition:
     def __init__(self, tonality, timesig, n1, n2, n3, n4, n5, n6): 
@@ -43,13 +13,13 @@ class MusicComposition:
         self.stateSpace = [i for i in range(5)] # we are picking the range from A on top of the bass clef to C5 in the middle of the treble clef. There is nine ten in that range (including A and B)
         self.stateSpace.remove(4)
         self.stateSpacePlus = [i for i in range(5)]
-        self.actionSpaceIndex = {'C4': 1, 'D4': 2, 'E4': 3, 'F4': 4, 'G4': 5, 'A4': 6, 'B4': 7, 'C5': 8, 'D5': 9, 'E5': 10, 'F5': 11, 'G5': 12, 'A5': 13}
-        self.actionSpaceIndexRev = {1: 'C4', 2: 'D4', 3: 'E4', 4: 'F4', 5: 'G4', 6: 'A4', 7: 'B4', 8: 'C5', 9: 'D5', 10: 'E5', 11: 'F5', 12: 'G5', 13: 'A5'}
-        self.actionRangeNum = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        self.actionSpaceIndex = {'C4': 1, 'D4': 2, 'E4': 3, 'F4': 4, 'G4': 5, 'A4': 6, 'B4': 7, 'C5': 8, 'D5': 9, 'E5': 10}
+        self.actionSpaceIndexRev = {1: 'C4', 2: 'D4', 3: 'E4', 4: 'F4', 5: 'G4', 6: 'A4', 7: 'B4', 8: 'C5', 9: 'D5', 10: 'E5'}
+        self.actionRangeNum = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         # self.actionSpace = {'A3': note.Note('A3', type='quarter', clef=TrebleClef), 'B3': note.Note('B3', type='quarter', clef=TrebleClef), 'C4': note.Note('C4', type='quarter', clef=TrebleClef), 'D4': note.Note('D4', type='quarter', clef=TrebleClef), 
         #                     'E4': note.Note('E4', type='quarter', clef=TrebleClef), 'F4': note.Note('F4', type='quarter', clef=TrebleClef), 'G4': note.Note('G4', type='quarter', clef=TrebleClef), 'A4': note.Note('A4', type='quarter', clef=TrebleClef), 
         #                     'B4': note.Note('B4', type='quarter', clef=TrebleClef), 'C5': note.Note('C5', type='quarter', clef=TrebleClef)} # This will just serve as a dictionary of actions the agent can take
-        self.noteRange = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5']
+        self.noteRange = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5']
         self.possibleActions = self.makeActionSpace(self.actionRangeNum)
         self.actionSpaceNum = [i for i in range(len(self.possibleActions))]
         self.actionSpaceDic = self.makeActionSpaceDict(self.possibleActions, self.actionSpaceNum)
@@ -161,7 +131,7 @@ if __name__ == '__main__':
         for action in env.actionSpaceNum:
             Q[state, action] = 0 #table of state and action pairs for our Q Learning
 
-    numComp = 2000 #The number of episodes and time that the while loop below will be entered
+    numComp = 100000 #The number of episodes and time that the while loop below will be entered
     totalRewards = np.zeros(numComp) 
     for i in range(numComp): #constantly iterate through all desired episodes
 
@@ -210,7 +180,7 @@ if __name__ == '__main__':
             EPS = 0
         totalRewards[i] = epRewards
         
-    '''   
+    '''
     O = stream.Stream()
     O.append(chord.Chord([env.baseNotes1, env.initPosition]))
     O.append(chord.Chord([env.baseNotes2, Z[0]]))
@@ -227,8 +197,8 @@ if __name__ == '__main__':
 
     plt.plot(average_rewards)
     plt.xlabel('Episodes (x100)')
-    plt.ylabel('Cost')
-    plt.title('Average Cost Curve')
+    plt.ylabel('Reward')
+    plt.title('Average Reward Curve')
     plt.show()
     
      
